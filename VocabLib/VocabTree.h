@@ -16,6 +16,10 @@ typedef enum {
     DistanceMin = 1,
 } DistanceType;
 
+/* Sparse matrix types */
+typedef std::pair<unsigned long,float> sp_entry;
+typedef std::vector<sp_entry> sp_list;
+
 /* ImageCount class used in the inverted file */
 class ImageCount {
 public:
@@ -74,8 +78,7 @@ public:
     virtual unsigned long PushAndScoreFeature(unsigned char *v, 
                                               unsigned int index, 
                                               int bf, int dim,
-                                              bool add = true)
-        { return 0; }
+                                              bool add = true) = 0;
 
     /* Update the counts in an inverted file associated with a visual
      * word 
@@ -126,12 +129,23 @@ public:
     virtual double ComputeTFIDFWeights(int bf, double n)
         { return 0; }
 
+    /* Fill a memory buffer with the descriptors scored in the leaves
+     * of the tree */
+    virtual void FillDescriptors(int bf, int dim, unsigned long &id,
+                                 unsigned char *desc) const = 0;
+    virtual int FillDatabaseVectors(std::vector<sp_list> &vectors, 
+                                    int start_index, int bf, int dim) const= 0;
+    virtual void PopulateLeaves(int bf, int dim, 
+                                VocabTreeNode **leaves) = 0;
+
     /* Functions for normalizing the database vectors */
     virtual double ComputeDatabaseVectorMagnitude(int bf, DistanceType dtype) 
         { return 0; }
-    virtual int NormalizeDatabase(int bf, std::vector<float> &mags)
+    virtual int NormalizeDatabase(int bf, int start_index, 
+                                  std::vector<float> &mags)
         { return 0; }
     virtual int ComputeDatabaseMagnitudes(int bf, DistanceType dtype, 
+                                          int start_index, 
                                           std::vector<float> &mags) 
         { return 0; }
 
@@ -155,6 +169,12 @@ public:
     virtual int SetConstantLeafWeights(int bf) 
         { return 0; }
 
+    virtual int Combine(VocabTreeNode *other, int bf)
+        { return 0; }
+
+    virtual int GetMaxDatabaseImageIndex(int bf) const
+        { return 0; }
+        
     /* Member variables */
     unsigned char *m_desc; /* Descriptor for this node */
     unsigned long m_id;    /* ID of this node */
@@ -189,21 +209,32 @@ public:
 
     virtual double ComputeTFIDFWeights(int bf, double n);
 
+    virtual void FillDescriptors(int bf, int dim, unsigned long &id,
+                                 unsigned char *desc) const;
+    virtual int FillDatabaseVectors(std::vector<sp_list> &vectors, 
+                                    int start_index, int bf, int dim) const;
+    virtual void PopulateLeaves(int bf, int dim, VocabTreeNode **leaves);
+
     virtual int PrintWeights(int depth_curr, int bf) const;
     virtual unsigned long ComputeIDs(int bf, unsigned long id);
     virtual unsigned long CountNodes(int bf) const;
     virtual unsigned long CountLeaves(int bf) const;
     virtual double CountFeatures(int bf);
     virtual int ClearScores(int bf);
-    virtual int NormalizeDatabase(int bf, std::vector<float> &mags);
+    virtual int NormalizeDatabase(int bf, int start_index, 
+                                  std::vector<float> &mags);
     virtual double ComputeDatabaseVectorMagnitude(int bf, DistanceType dtype);
     virtual int ComputeDatabaseMagnitudes(int bf, DistanceType dtype, 
+                                          int start_index, 
                                           std::vector<float> &mags);
     
     virtual int ClearDatabase(int bf);
     virtual int SetConstantLeafWeights(int bf);
     virtual int FillQueryVector(float *q, int bf, double mag_inv);
-    
+
+    virtual int Combine(VocabTreeNode *other, int bf);
+    virtual int GetMaxDatabaseImageIndex(int bf) const;
+
     /* Member variables */
     VocabTreeNode **m_children; /* Array of child nodes */
 };
@@ -239,8 +270,15 @@ public:
 
     virtual double ComputeTFIDFWeights(int bf, double n);
 
+    virtual void FillDescriptors(int bf, int dim, unsigned long &id,
+                                 unsigned char *desc) const;
+    virtual int FillDatabaseVectors(std::vector<sp_list> &vectors, 
+                                    int start_index, int bf, int dim) const;
+    virtual void PopulateLeaves(int bf, int dim, VocabTreeNode **leaves);
+
     virtual double ComputeDatabaseVectorMagnitude(int bf, DistanceType dtype);
     virtual int ComputeDatabaseMagnitudes(int bf, DistanceType dtype, 
+                                          int start_index, 
                                           std::vector<float> &mags);
 
     virtual int ClearScores(int bf);
@@ -258,12 +296,33 @@ public:
     virtual unsigned long CountLeaves(int bf) const;
     virtual double CountFeatures(int bf);
 
-    virtual int NormalizeDatabase(int bf, std::vector<float> &mags);
+    virtual int NormalizeDatabase(int bf, int start_index, 
+                                  std::vector<float> &mags);
+
+    virtual int Combine(VocabTreeNode *other, int bf);
+    virtual int GetMaxDatabaseImageIndex(int bf) const;
 
     /* Member variables */
     float m_score;   /* Current, temporary score for the current image */
     float m_weight;  /* Weight for this visual word */
     std::vector<ImageCount> m_image_list;  /* Images that contain this word */
+};
+
+
+class VocabTreeFlatNode : public VocabTreeInteriorNode
+{
+public:
+    VocabTreeFlatNode() : VocabTreeInteriorNode()
+    { }
+
+    virtual unsigned long PushAndScoreFeature(unsigned char *v, 
+                                              unsigned int index, 
+                                              int bf, int dim, 
+                                              bool add = true);
+
+    void BuildANNTree(int num_leaves, int dim);
+
+    ann_1_1_char::ANNkd_tree *m_tree; /* For finding nearest neighbors */
 };
 
 class VocabTree {
@@ -276,6 +335,10 @@ public:
     int Write(const char *filename) const;
     int WriteFlat(const char *filename) const;
     int WriteASCII(const char *filename) const;
+    int WriteDatabaseVectors(const char *filename, 
+                             int start_index, int num_vectors) const;
+
+    int Flatten(); /* Flatten the tree to a single level */
 
     /* Build the vocabulary tree using kmeans 
      *
@@ -308,12 +371,14 @@ public:
      *   n     : number of features in the database
      *   v     : array of feature descriptors, concatenated into one
      *         : big array of length n*dim
+     *   ids   : optional output array of word ids each key mapped to
      */
-    double AddImageToDatabase(int index, int n, unsigned char *v);
+    double AddImageToDatabase(int index, int n, unsigned char *v, 
+                              unsigned long *ids = NULL);
 
     /* Given a tree populated with database images, compute the TFIDF
      * weights */
-    int ComputeTFIDFWeights();
+    int ComputeTFIDFWeights(unsigned int num_db_images);
 
     /* Given a set of feature descriptors in a query image, compute
      * the similarity between the query image and all of the images in
@@ -334,7 +399,10 @@ public:
     /* Empty out the database */
     int ClearDatabase();
     /* Normalize the database */
-    int NormalizeDatabase(int num_db_images); // std::vector<float> &mags);
+    int NormalizeDatabase(int start_index, int num_db_images);
+    /* Combine with another database */
+    int Combine(const VocabTree &tree);
+    int GetMaxDatabaseImageIndex() const;
 
     /* Utility functions */
     int PrintWeights();
@@ -344,6 +412,9 @@ public:
     int SetInteriorNodeWeight(int dist_from_leaves, float weight);
     int SetConstantLeafWeights();
     int SetDistanceType(DistanceType type);
+
+    /* Destroy this tree */
+    int Clear();
     
     /* Member variables */
     int m_database_images;         /* Number of images in the database */

@@ -11,29 +11,43 @@
 #include "keys2.h"
 #include "VocabTree.h"
 
-/* Read in a set of keys from a file 
- *
- * Inputs:
- *   keyfile      : file from which to read keys
- *   dim          : dimensionality of descriptors
- * 
- * Outputs:
- *   num_keys_out : number of keys read
- *
- * Return value   : pointer to array of descriptors.  The descriptors
- *                  are concatenated together in one big array of
- *                  length num_keys_out * dim 
- */
-unsigned char *ReadKeys(const char *keyfile, int dim, int &num_keys_out)
+unsigned char *ReadAndFilterKeys(const char *keyfile, int dim, 
+                                 double min_feature_scale, 
+                                 int max_keys, int &num_keys_out)
 {
     short int *keys;
     keypt_t *info = NULL;
     int num_keys = ReadKeyFile(keyfile, &keys, &info);
     
+    if (num_keys == 0) {
+        num_keys_out = 0;
+        return NULL;
+    }
+    
+    /* Filter keys */
     unsigned char *keys_char = new unsigned char[num_keys * dim];
         
-    for (int j = 0; j < num_keys * dim; j++) {
-        keys_char[j] = (unsigned char) keys[j];
+    int num_keys_filtered = 0;
+    if (min_feature_scale == 0.0 && max_keys == 0) {
+        for (int j = 0; j < num_keys * dim; j++) {
+            keys_char[j] = (unsigned char) keys[j];
+        }
+        num_keys_filtered = num_keys;
+    } else {
+        for (int j = 0; j < num_keys; j++) {
+            if (info[j].scale < min_feature_scale)
+                continue;
+            
+            for (int k = 0; k < dim; k++) {
+                keys_char[num_keys_filtered * dim + k] = 
+                    (unsigned char) keys[j * dim + k];
+            }
+            
+            num_keys_filtered++;
+
+            if (max_keys > 0 && num_keys_filtered >= max_keys)
+                break;
+        }
     }
 
     delete [] keys;
@@ -41,27 +55,42 @@ unsigned char *ReadKeys(const char *keyfile, int dim, int &num_keys_out)
     if (info != NULL) 
         delete [] info;
 
-    num_keys_out = num_keys;
+    num_keys_out = num_keys_filtered;
 
     return keys_char;
 }
 
 int main(int argc, char **argv) 
 {
-    if (argc != 4 && argc != 5) {
-        printf("Usage: %s <list.in> <tree.in> <tree.out> [distance_type]\n", 
+    if (argc < 4 || argc > 8) {
+        printf("Usage: %s <list.in> <tree.in> <tree.out> [use_tfidf:1] "
+               "[normalize:1] [start_id:0] [distance_type:1]\n", 
                argv[0]);
 
         return 1;
     }
+
+    double min_feature_scale = 1.4;
+    bool use_tfidf = true;
+    bool normalize = true;
     
     char *list_in = argv[1];
     char *tree_in = argv[2];
     char *tree_out = argv[3];
     DistanceType distance_type = DistanceMin;
+    int start_id = 0;
 
     if (argc >= 5)
-        distance_type = (DistanceType) atoi(argv[4]);
+        use_tfidf = atoi(argv[4]);
+
+    if (argc >= 6)
+        normalize = atoi(argv[5]);
+
+    if (argc >= 7)
+        start_id = atoi(argv[6]);
+
+    if (argc >= 8)
+        distance_type = (DistanceType) atoi(argv[7]);
 
     switch (distance_type) {
     case DistanceDot:
@@ -98,6 +127,10 @@ int main(int argc, char **argv)
     VocabTree tree;
     tree.Read(tree_in);
 
+#if 1
+    tree.Flatten();
+#endif
+
     tree.m_distance_type = distance_type;
     tree.SetInteriorNodeWeight(0.0);
 
@@ -112,10 +145,13 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < num_db_images; i++) {
         int num_keys = 0;
-        unsigned char *keys = ReadKeys(key_files[i].c_str(), dim, num_keys);
+        unsigned char *keys = ReadAndFilterKeys(key_files[i].c_str(), 
+                                                dim, min_feature_scale,
+                                                0, num_keys);
 
-        printf("[VocabBuildDB] Adding vector %d (%d keys)\n", i, num_keys);
-        tree.AddImageToDatabase(i, num_keys, keys);
+        printf("[VocabBuildDB] Adding vector %d (%d keys)\n", 
+               start_id + i, num_keys);
+        tree.AddImageToDatabase(start_id + i, num_keys, keys);
 
         if (num_keys > 0) 
             delete [] keys;
@@ -124,11 +160,18 @@ int main(int argc, char **argv)
     printf("[VocabBuildDB] Pushed %lu features\n", count);
     fflush(stdout);
 
-    tree.ComputeTFIDFWeights();
-    tree.NormalizeDatabase(num_db_images);
+    if (use_tfidf)
+        tree.ComputeTFIDFWeights(num_db_images);
+
+    if (normalize) 
+        tree.NormalizeDatabase(start_id, num_db_images);
 
     printf("[VocabBuildDB] Writing tree...\n");
     tree.Write(tree_out);
+
+    // char filename[256];
+    // sprintf(filename, "vectors_%03d.txt", start_id);
+    // tree.WriteDatabaseVectors(filename, start_id, num_db_images);
 
     return 0;
 }

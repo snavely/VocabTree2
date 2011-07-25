@@ -242,3 +242,47 @@ int VocabTree::SetDistanceType(DistanceType type)
     m_distance_type = type;
     return 0;
 }
+
+void VocabTreeInteriorNode::FillDescriptors(int bf, int dim, unsigned long &id,
+                                            unsigned char *desc) const
+{
+    for (int i = 0; i < bf; i++) {
+        if (m_children[i] != NULL) {
+            m_children[i]->FillDescriptors(bf, dim, id, desc);
+        }
+    }
+}
+
+void VocabTreeLeaf::FillDescriptors(int bf, int dim, unsigned long &id,
+                                    unsigned char *desc) const
+{
+    memcpy(desc + id * dim, m_desc, dim);
+    id++;
+}
+
+int VocabTreeInteriorNode::
+    FillDatabaseVectors(std::vector<sp_list> &vectors, int start_index, 
+                        int bf, int dim) const
+{
+    for (int i = 0; i < bf; i++) {
+        if (m_children[i] != NULL) {
+            m_children[i]->FillDatabaseVectors(vectors, start_index, bf, dim);
+        }
+    }
+
+    return 0;
+}
+
+int VocabTreeLeaf::FillDatabaseVectors(std::vector<sp_list> &vectors, 
+                                       int start_index, int bf, int dim) const
+{
+    int n = (int) m_image_list.size();
+
+    for (int i = 0; i < n; i++) {
+        unsigned int index = m_image_list[i].m_index - start_index;
+        float count = m_image_list[i].m_count;
+        vectors[index].push_back(sp_entry(m_id, count));
+    }
+
+    return 0;
+}

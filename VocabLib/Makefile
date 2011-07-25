@@ -13,7 +13,7 @@ INCLUDE_PATH=-I../lib/ann_1.1/include/ANN -I../lib/ann_1.1_char/include/ANN \
 	-I../lib/imagelib -I../lib/zlib/include
 
 OBJS=keys2.o kmeans.o VocabTreeBuild.o VocabTreeIO.o \
-	VocabTreeUtil.o VocabTree.o
+	VocabTreeUtil.o VocabTree.o VocabFlatNode.o
 
 CPPFLAGS=$(INCLUDE_PATH) $(OTHERFLAGS) $(OPTFLAGS)
 

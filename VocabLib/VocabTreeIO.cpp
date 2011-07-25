@@ -304,3 +304,45 @@ int VocabTree::WriteASCII(const char *filename) const
 
     return 0;
 }
+
+int VocabTree::WriteDatabaseVectors(const char *filename, 
+                                    int start_index, int num_vectors) const
+{
+    if (m_root == NULL)
+        return -1;
+
+    std::vector<sp_list> vectors;
+    vectors.resize(num_vectors);
+    
+    /* Fill the database vectors from the tree */
+    m_root->FillDatabaseVectors(vectors, start_index, m_branch_factor, m_dim);
+
+    /* Write the database vectors to disk */
+    FILE *f = fopen(filename, "w");
+    
+    if (f == NULL) {
+        printf("[WriteDatabaseVectors] Error opening file %s for writing\n",
+               filename);
+        return -1;
+    }
+
+    // unsigned long num_leaves = CountLeaves();
+    unsigned long num_nodes = CountNodes();
+
+    fprintf(f, "%d %lu\n", num_vectors, num_nodes);
+    
+    for (int i = 0; i < num_vectors; i++) {
+        int k = vectors[i].size();
+        fprintf(f, "%d", k);
+        for (int j = 0; j < k; j++) {
+            fprintf(f, " %lu %0.6e", 
+                    vectors[i][j].first, vectors[i][j].second);
+        }
+
+        fprintf(f, "\n");
+    }
+
+    fclose(f);
+
+    return 0;
+}

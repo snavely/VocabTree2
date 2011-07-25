@@ -5,8 +5,8 @@ MACHTYPE=$(shell uname -m)
 GCC			= g++
 
 CC=gcc
-OPTFLAGS=-g2
-# OPTFLAGS=-O3
+# OPTFLAGS=-g2
+OPTFLAGS=-O3
 OTHERFLAGS=-Wall
 
 INCLUDE_PATH=-I../lib/ann_1.1/include/ANN -I../lib/ann_1.1_char/include/ANN \
