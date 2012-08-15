@@ -161,12 +161,13 @@ int VocabTreeLeaf::Read(FILE *f, int bf, int dim)
     int num_images;
     fread(&num_images, sizeof(int), 1, f);
 
+    m_image_list.resize(num_images);
     for (int i = 0; i < num_images; i++) {
         int img;
         float count;
         fread(&img, sizeof(int), 1, f);
         fread(&count, sizeof(float), 1, f);
-        m_image_list.push_back(ImageCount(img, count));
+        m_image_list[i] = ImageCount(img, count);
     }
 
     return 0;

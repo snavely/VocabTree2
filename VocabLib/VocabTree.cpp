@@ -31,9 +31,33 @@ static unsigned long vec_diff_normsq(int dim,
     return normsq;
 }
 
+void VocabTreeInteriorNode::Clear(int bf) 
+{
+    if (m_children != NULL) {
+        for (int i = 0; i < bf; i++) {
+            m_children[i]->Clear(bf);
+            delete m_children[i];
+        }
+
+        delete [] m_children;
+    }
+    
+    if (m_desc != NULL) 
+        delete [] m_desc;    
+}
+
+void VocabTreeLeaf::Clear(int bf) 
+{
+    if (m_desc != NULL)
+        delete [] m_desc;
+
+    m_image_list.clear();
+}
+
+#if 0
 VocabTreeInteriorNode::~VocabTreeInteriorNode()
 {
-    if (m_children != NULL) 
+    if (m_children != NULL)
         delete [] m_children;
 
     if (m_desc != NULL) 
@@ -45,6 +69,7 @@ VocabTreeLeaf::~VocabTreeLeaf()
     if (m_desc != NULL)
         delete [] m_desc;
 }
+#endif
 
 unsigned long VocabTreeInteriorNode::
     PushAndScoreFeature(unsigned char *v, 
@@ -503,8 +528,10 @@ int VocabTree::GetMaxDatabaseImageIndex() const
 
 int VocabTree::Clear() 
 {
-    if (m_root != NULL)
+    if (m_root != NULL) {
+        m_root->Clear(m_branch_factor);
         delete m_root;
+    }
 
     return 0;
 }

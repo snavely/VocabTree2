@@ -23,6 +23,7 @@ typedef std::vector<sp_entry> sp_list;
 /* ImageCount class used in the inverted file */
 class ImageCount {
 public:
+    ImageCount() : m_index(0), m_count(0.0) { }
     ImageCount(unsigned int index, float count) : 
         m_index(index), m_count(count) { }
 
@@ -46,6 +47,7 @@ public:
     virtual int Write(FILE *f, int bf, int dim) const = 0;
     virtual int WriteFlat(FILE *f, int bf, int dim) const = 0;
     virtual int WriteASCII(FILE *f, int bf, int dim) const = 0;
+    virtual void Clear(int bf) = 0;
 
     /* Recursively build the vocabulary tree via kmeans clustering */
     /* Inputs: 
@@ -184,13 +186,14 @@ public:
 class VocabTreeInteriorNode : public VocabTreeNode {
 public:
     VocabTreeInteriorNode() : VocabTreeNode(), m_children(NULL) { }
-    virtual ~VocabTreeInteriorNode();
+    virtual ~VocabTreeInteriorNode() { };
 
     virtual int Read(FILE *f, int bf, int dim);
     virtual int WriteNode(FILE *f, int bf, int dim) const;
     virtual int Write(FILE *f, int bf, int dim) const;
     virtual int WriteFlat(FILE *f, int bf, int dim) const;
     virtual int WriteASCII(FILE *f, int bf, int dim) const;
+    virtual void Clear(int bf);
 
     virtual int BuildRecurse(int n, int dim, int depth, int depth_curr, 
                              int bf, int restarts, unsigned char **v,
@@ -245,7 +248,7 @@ class VocabTreeLeaf : public VocabTreeNode
 {
 public:
     VocabTreeLeaf() : VocabTreeNode(), m_score(0.0), m_weight(1.0) { }
-    virtual ~VocabTreeLeaf();
+    virtual ~VocabTreeLeaf() { };
 
     /* I/O functions */
     virtual int Read(FILE *f, int bf, int dim);
@@ -253,6 +256,7 @@ public:
     virtual int Write(FILE *f, int bf, int dim) const;
     virtual int WriteFlat(FILE *f, int bf, int dim) const;
     virtual int WriteASCII(FILE *f, int bf, int dim) const;
+    virtual void Clear(int bf);
 
     virtual int BuildRecurse(int n, int dim, int depth, int depth_curr, 
                              int bf, int restarts, unsigned char **v,

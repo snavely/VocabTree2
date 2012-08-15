@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "kmeans_kd.h"
+
 /* Utility functions.  Feel free to use these. */
 
 /* Choose k numbers at random from 0 to n-1 */
@@ -319,13 +321,13 @@ double kmeans(int n, int dim, int k, int restarts, unsigned char **v,
         
         /* Compute new assignments */
         int changed = 0;
-        changed = compute_clustering(n, dim, k, v, means_curr,
-                                     clustering_curr, error);
+        changed = compute_clustering_kd_tree(n, dim, k, v, means_curr,
+                                             clustering_curr, error);
 
         double changed_pct = (double) changed / n;
 
         do {
-            // printf("Round %d: changed: %d\n", i, changed);
+            printf("Round %d: changed: %d\n", i, changed);
             fflush(stdout);
 
             /* Recompute means */
@@ -335,8 +337,8 @@ double kmeans(int n, int dim, int k, int restarts, unsigned char **v,
             memcpy(means_curr, means_new, sizeof(double) * dim * k);
 
             /* Compute new assignments */
-            changed = compute_clustering(n, dim, k, v, means_curr,
-                                         clustering_curr, error);
+            changed = compute_clustering_kd_tree(n, dim, k, v, means_curr,
+                                                 clustering_curr, error);
 
             changed_pct = (double) changed / n;
 

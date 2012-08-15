@@ -157,9 +157,14 @@ int main(int argc, char **argv)
     clock_t start = clock();
     VocabTree tree;
     tree.Read(tree_in);
+
     clock_t end = clock();
     printf("[VocabMatch] Read tree in %0.3fs\n", 
            (double) (end - start) / CLOCKS_PER_SEC);
+
+#if 1
+    tree.Flatten();
+#endif
 
     tree.SetDistanceType(distance_type);
     tree.SetInteriorNodeWeight(0, 0.0);
@@ -216,7 +221,7 @@ int main(int argc, char **argv)
     int *perm = new int[num_db_images];
 
     int max_ld = 0;
-    for (int i = 0; i < num_db_images; i++){
+    for (int i = 0; i < num_db_images; i++) {
         if (db_landmarks[i] > max_ld){
             max_ld = db_landmarks[i];
         }
@@ -303,7 +308,7 @@ int main(int argc, char **argv)
 
         /* Print the matching information to a file */
         fprintf(f_match, "%d %d %d\n", i, max_landmark, max_votes);
-        fflush(f_match);        
+        fflush(f_match);
         fflush(stdout);
 
         PrintHTMLRow(f_html, query_files[i], scores_d, 
