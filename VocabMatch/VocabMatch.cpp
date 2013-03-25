@@ -1,3 +1,39 @@
+/* 
+ * Copyright 2011-2012 Noah Snavely, Cornell University
+ * (snavely@cs.cornell.edu).  All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above
+ *    copyright notice, this list of conditions and the following
+ *    disclaimer in the documentation and/or other materials provided
+ *    with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY NOAH SNAVELY ''AS IS'' AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL NOAH SNAVELY OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ * 
+ * The views and conclusions contained in the software and
+ * documentation are those of the authors and should not be
+ * interpreted as representing official policies, either expressed or
+ * implied, of Cornell University.
+ *
+ */
+
 /* VocabMatch.cpp */
 /* Build a database from a vocab tree and score a few images */
 
@@ -264,25 +300,6 @@ int main(int argc, char **argv)
         qsort_descending();
         qsort_perm(num_db_images, scores_d, perm);        
 
-#ifdef SKELETON_CODE
-        /* *** TODO 9 ***
-         *
-         * You'll need to implement this part.  The scores_d array now
-         * contains the similarities of the top matching database
-         * image to the query image, and perm contains the
-         * corresponding database image indices.  You'll need to use
-         * k-nearest neighbors to compute the best landmark.  The
-         * landmark ID for each database image is stored in the vector
-         * db_landmarks.  When you're done, max_landmark should
-         * contain your answer, and max_votes the support that it has.
-         * If you'd like to try a more sophisticated method than raw
-         * knn, please feel free.
-         */
-
-        int max_landmark = 0, max_votes = 0;
-
-        /* END TODO */
-#else
         int max_landmark = 0, max_votes = 0;
         int top = MIN(num_nbrs, num_db_images);
 
@@ -304,7 +321,6 @@ int main(int argc, char **argv)
                 max_landmark = j;
             }
         }
-#endif /* SKELETON_CODE */
 
         /* Print the matching information to a file */
         fprintf(f_match, "%d %d %d\n", i, max_landmark, max_votes);

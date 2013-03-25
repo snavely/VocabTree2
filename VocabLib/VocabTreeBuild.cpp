@@ -1,3 +1,39 @@
+/* 
+ * Copyright 2011-2012 Noah Snavely, Cornell University
+ * (snavely@cs.cornell.edu).  All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above
+ *    copyright notice, this list of conditions and the following
+ *    disclaimer in the documentation and/or other materials provided
+ *    with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY NOAH SNAVELY ''AS IS'' AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL NOAH SNAVELY OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ * 
+ * The views and conclusions contained in the software and
+ * documentation are those of the authors and should not be
+ * interpreted as representing official policies, either expressed or
+ * implied, of Cornell University.
+ *
+ */
+
 /* VocabTreeBuild.cpp */
 /* Routines for building a vocab tree */
 
@@ -36,29 +72,6 @@ int VocabTreeInteriorNode::BuildRecurse(int n, int dim, int depth,
     /* Allocate the children for this node */
     m_children = new VocabTreeNode *[bf];
 
-#ifdef SKELETON_CODE
-    /* *** TODO 4 *** 
-     * 
-     * You'll need to fill in this part of the code for building a
-     * vocabulary tree using hierarchical k-means.  This function will
-     * run kmeans (i.e., call your kmeans function) on the set of
-     * input descriptors, then create a set of child nodes (stored in
-     * m_children, allocated above), either of type VocabTreeLeaf (if
-     * the next level is the lowest), or VocabTreeInteriorNode.
-     * You'll need to allocate a descriptor (m_children[i]->m_desc)
-     * for each child node, then fill that descriptor using the
-     * results of k-means.  Note that m_desc is stored as an unsigned
-     * char, so you'll need to round the results of k-means (or, if
-     * you choose, change m_desc to a float and see how it improves
-     * performance.  Finally, you'll need to recursively call this
-     * function.
-     *
-     * Note that some child nodes might be empty because no points are
-     * assigned to a cluster in k-means.
-     */
-
-    /* END TODO */
-#else
     /* Run k-means */
     double error = kmeans(n, dim, bf, restarts, v, means, clustering);
 
@@ -139,7 +152,6 @@ int VocabTreeInteriorNode::BuildRecurse(int n, int dim, int depth,
     }
 
     delete [] counts;
-#endif /* SKELETON_CODE */
 
     return 0;
 }

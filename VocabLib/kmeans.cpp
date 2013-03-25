@@ -1,4 +1,40 @@
-/* kmeans.c */
+/* 
+ * Copyright 2011-2012 Noah Snavely, Cornell University
+ * (snavely@cs.cornell.edu).  All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above
+ *    copyright notice, this list of conditions and the following
+ *    disclaimer in the documentation and/or other materials provided
+ *    with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY NOAH SNAVELY ''AS IS'' AND ANY EXPRESS
+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL NOAH SNAVELY OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ * 
+ * The views and conclusions contained in the software and
+ * documentation are those of the authors and should not be
+ * interpreted as representing official policies, either expressed or
+ * implied, of Cornell University.
+ *
+ */
+
+/* kmeans.cpp */
 
 #include <float.h>
 #include <stdio.h>
@@ -6,8 +42,6 @@
 #include <string.h>
 
 #include "kmeans_kd.h"
-
-/* Utility functions.  Feel free to use these. */
 
 /* Choose k numbers at random from 0 to n-1 */
 static void choose(int n, int k, int *arr)
@@ -106,10 +140,6 @@ static double vec_normsq(int dim, double *v)
 double compute_means(int n, int dim, int k, unsigned char **v, 
                      unsigned int *clustering, double *means_out)
 {
-#ifdef SKELETON_CODE
-    /* *** TODO 1 ***
-     * You need to fill in the output array as described above. */
-#else
     int i;
     double max_change = 0.0;
     int *counts = (int *) malloc(sizeof(int) * k);
@@ -139,17 +169,11 @@ double compute_means(int n, int dim, int k, unsigned char **v,
     free(counts);
 
     return max_change;
-#endif /* SKELETON_CODE */
 }
 
 double compute_error(int n, int dim, int k, unsigned char **v,
                      double *means, unsigned int *clustering)
 {
-#ifdef SKELETON_CODE
-    /* *** TODO 1.5 ***
-     * Compute the error in the current clustering via the kmeans
-     * energy function */
-#else
     int i, j;
 
     double error = 0;
@@ -163,7 +187,6 @@ double compute_error(int n, int dim, int k, unsigned char **v,
     }
 
     return error;
-#endif /* SKELETON_CODE */
 }
 
 /* Function compute_clustering.  
@@ -187,11 +210,6 @@ int compute_clustering(int n, int dim, int k, unsigned char **v,
                        double *means, unsigned int *clustering, 
                        double &error_out)
 {
-#ifdef SKELETON_CODE
-    /* *** TODO 2 *** 
-     * 
-     * Implement this function.  */
-#else
     int i;
     double error = 0.0;
 
@@ -231,7 +249,6 @@ int compute_clustering(int n, int dim, int k, unsigned char **v,
     error_out = error;
 
     return changed;
-#endif /* SKELETON_CODE */
 }
 
 /* Function kmeans.  
@@ -255,13 +272,6 @@ int compute_clustering(int n, int dim, int k, unsigned char **v,
 double kmeans(int n, int dim, int k, int restarts, unsigned char **v, 
               double *means, unsigned int *clustering)
 {
-#ifdef SKELETON_CODE
-    /* 
-     * *** TODO 3 ***
-     * 
-     * Write this function.  It might be helpful to call
-     * compute_clustering and compute_means inside. */
-#else
     int i;
     double min_error = DBL_MAX;
 
@@ -363,5 +373,4 @@ double kmeans(int n, int dim, int k, int restarts, unsigned char **v,
     free(work);
 
     return compute_error(n, dim, k, v, means, clustering);
-#endif /* SKELETON_CODE */
 }
