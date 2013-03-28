@@ -61,7 +61,7 @@ int main(int argc, char **argv)
     int bf = atoi(argv[3]);
     int restarts = atoi(argv[4]);
     const char *tree_out = argv[5];
-OA
+
     printf("Building tree with depth: %d, branching factor: %d, "
            "and restarts: %d\n", depth, bf, restarts);
 

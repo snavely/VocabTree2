@@ -58,7 +58,6 @@ $(LIBDIR)/$(ANNLIB): $(OBJECTS)
 	$(RANLIB) $(ANNLIB)
 	cp $(ANNLIB) ../..
 	cp $(ANNLIB) ../../../bin
-	rm -f $(LIBDIR)/$(ANNLIB)
 	mv $(ANNLIB) $(LIBDIR)
 
 #-----------------------------------------------------------------------------
