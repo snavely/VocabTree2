@@ -10,6 +10,7 @@ default:
 	cd VocabLearn; $(MAKE)
 	cd VocabBuildDB; $(MAKE)
 	cd VocabMatch; $(MAKE)
+	cd src; $(MAKE)
 
 clean:
 	cd lib/ann_1.1_char; $(MAKE) clean
@@ -19,4 +20,5 @@ clean:
 	cd VocabLearn; $(MAKE) clean
 	cd VocabBuildDB; $(MAKE) clean
 	cd VocabMatch; $(MAKE) clean
+	cd src; $(MAKE) clean
 #	rm -f bin/bundler bin/KeyMatchFull
