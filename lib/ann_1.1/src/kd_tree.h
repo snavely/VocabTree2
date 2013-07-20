@@ -31,6 +31,8 @@
 
 using namespace std;					// make std:: available
 
+struct ANNprTempStore;
+
 //----------------------------------------------------------------------
 //	Generic kd-tree node
 //
@@ -48,7 +50,7 @@ public:
 	virtual ~ANNkd_node() {}					// virtual distroyer
 
 	virtual void ann_search(ANNdist) = 0;		// tree search
-	virtual void ann_pri_search(ANNdist) = 0;	// priority search
+	virtual void ann_pri_search(ANNdist, ANNprTempStore&) = 0;	// priority search
 	virtual void ann_FR_search(ANNdist) = 0;	// fixed-radius search
 
 	virtual void getStats(						// get tree statistics
@@ -111,7 +113,7 @@ public:
 	virtual void dump(ostream &out);			// dump node
 
 	virtual void ann_search(ANNdist);			// standard search
-	virtual void ann_pri_search(ANNdist);		// priority search
+	virtual void ann_pri_search(ANNdist, ANNprTempStore&);		// priority search
 	virtual void ann_FR_search(ANNdist);		// fixed-radius search
 };
 
@@ -177,7 +179,7 @@ public:
 	virtual void dump(ostream &out);			// dump node
 
 	virtual void ann_search(ANNdist);			// standard search
-	virtual void ann_pri_search(ANNdist);		// priority search
+	virtual void ann_pri_search(ANNdist, ANNprTempStore&);		// priority search
 	virtual void ann_FR_search(ANNdist);		// fixed-radius search
 };
 

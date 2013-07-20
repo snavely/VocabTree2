@@ -41,6 +41,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <omp.h>
+
 #include "../lib/ann_1.1/include/ANN/ANN.h"
 
 static void fill_vector_float(float *vec, unsigned char *v, int dim)
@@ -54,48 +56,60 @@ int compute_clustering_kd_tree(int n, int dim, int k, unsigned char **v,
                                double *means, unsigned int *clustering, 
                                double &error_out)
 {
-#if 1
-    int i;
     double error = 0.0;
 
-    int changed = 0;
+    // int changed = 0;
 
     /* Using a kd-tree */
     ANNpointArray pts = annAllocPts(k, dim);
-    float *vec = (float *) malloc(sizeof(float) * dim);
 
-    for (i = 0; i < k; i++) {
-        int j;
-        for (j = 0; j < dim; j++) {
+    for (int i = 0; i < k; i++) {
+        for (int j = 0; j < dim; j++) {
             pts[i][j] = means[i * dim + j];
         }
     }
 
-    ANNkd_tree *tree = new ANNkd_tree(pts, k, dim, 16);
+    ANNkd_tree *tree = new ANNkd_tree(pts, k, dim, 4);
     annMaxPtsVisit(512);
 
-    for (i = 0; i < n; i++) {
+    const int max_threads = omp_get_max_threads();    
+    int changed[max_threads];
+    float *vec[max_threads];
+
+    for (int i = 0; i < max_threads; i++) {
+        changed[i] = 0;
+        vec[i] = (float *) malloc(sizeof(float) * dim);
+    }
+    
+#pragma omp parallel for
+    for (int i = 0; i < n; i++) {
+        int my_thread = omp_get_thread_num();
+
         int nn;
         float dist;
-        fill_vector_float(vec, v[i], dim);
-        tree->annkPriSearch(vec, 1, &nn, &dist, 0.1);
+        fill_vector_float(vec[my_thread], v[i], dim);
+        tree->annkPriSearch(vec[my_thread], 1, &nn, &dist, 0.0);
 
         error += (double) dist;
-            
-        if ((int) clustering[i] != nn)
-            changed++;
-            
-        clustering[i] = nn;
+
+        if ((int) clustering[i] != nn) {
+            changed[my_thread]++;
+            clustering[i] = nn;
+        }
     }
 
     error_out = error;
 
-    free(vec);
+    for (int i = 0; i < max_threads; i++)
+        free(vec[i]);
+
     delete tree;
     annDeallocPts(pts);
 
-    return changed;
-#else
-    return 0;
-#endif
+    int changed_total = 0;
+    for (int i = 0; i < max_threads; i++) {
+        changed_total += changed[i];
+    }
+
+    return changed_total;
 }

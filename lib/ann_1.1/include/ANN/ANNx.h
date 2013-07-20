@@ -63,9 +63,9 @@ extern int		ANNptsVisited;		// number of pts visited in search
 //	Global function declarations
 //----------------------------------------------------------------------
 
-void annError(					// ANN error routine
-	char			*msg,		// error message
-	ANNerr			level);		// level of error
+void annError(				// ANN error routine
+	const char	*msg,		// error message
+	ANNerr		level);		// level of error
 
 void annPrintPt(				// print a point
 	ANNpoint		pt,			// the point

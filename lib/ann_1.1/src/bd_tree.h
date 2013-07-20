@@ -93,7 +93,7 @@ public:
 	virtual void dump(ostream &out);			// dump node
 
 	virtual void ann_search(ANNdist);			// standard search
-	virtual void ann_pri_search(ANNdist);		// priority search
+    virtual void ann_pri_search(ANNdist, ANNprTempStore&);		// priority search
 	virtual void ann_FR_search(ANNdist); 		// fixed-radius search
 };
 

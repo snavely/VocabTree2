@@ -464,8 +464,9 @@ double VocabTree::AddImageToDatabase(int index, int n, unsigned char *v,
     }
 }
 
-int VocabTree::ScoreQueryKeys(int n, bool normalize, unsigned char *v, 
-                              float *scores)
+/* Returns the weighted magnitude of the query vector */
+double VocabTree::ScoreQueryKeys(int n, bool normalize, unsigned char *v, 
+                                 float *scores)
 {
     qsort_descending();
 
@@ -498,7 +499,7 @@ int VocabTree::ScoreQueryKeys(int n, bool normalize, unsigned char *v,
 
     delete [] q;
 
-    return 0;
+    return mag;
 }
 
 unsigned long g_leaf_counter = 0;

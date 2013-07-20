@@ -35,7 +35,7 @@
  */
 
 /* VocabMatch.cpp */
-/* Build a database from a vocab tree and score a few images */
+/* Read a database stored as a vocab tree and score a set of query images */
 
 #include <math.h>
 #include <stdio.h>
@@ -94,6 +94,7 @@ int BasifyFilename(const char *filename, char *base)
     return 0;
 }
 
+#if 0
 /* Functions for outputting a webpage synopsis of the results */
 void PrintHTMLHeader(FILE *f, int num_nns) 
 {
@@ -147,6 +148,7 @@ void PrintHTMLFooter(FILE *f)
             "</body>\n"
             "</html>\n");
 }
+#endif
 
 int main(int argc, char **argv) 
 {
@@ -154,7 +156,7 @@ int main(int argc, char **argv)
 
     if (argc != 6 && argc != 7 && argc != 8) {
         printf("Usage: %s <tree.in> <db.in> <query.in> <num_nbrs> "
-               "<matches.out> [output.html] [distance_type]\n", argv[0]);
+               "<matches.out> [distance_type:1] [normalize:1]\n", argv[0]);
         return 1;
     }
     
@@ -164,13 +166,18 @@ int main(int argc, char **argv)
     int num_nbrs = atoi(argv[4]);
     char *matches_out = argv[5];
     DistanceType distance_type = DistanceMin;
-    char *output_html = "results.html";
-    
+    bool normalize = true;
+
+#if 0    
     if (argc >= 7)
         output_html = argv[6];
+#endif
+
+    if (argc >= 7)
+        distance_type = (DistanceType) atoi(argv[6]);
 
     if (argc >= 8)
-        distance_type = (DistanceType) atoi(argv[7]);
+        normalize = (atoi(argv[7]) != 0);
 
     printf("[VocabMatch] Using tree %s\n", tree_in);
 
@@ -209,18 +216,13 @@ int main(int argc, char **argv)
     FILE *f = fopen(db_in, "r");
     
     std::vector<std::string> db_files;
-    std::vector<int> db_landmarks;
     char buf[256];
     while (fgets(buf, 256, f)) {
         /* Remove trailing newline */
         if (buf[strlen(buf) - 1] == '\n')
             buf[strlen(buf) - 1] = 0;
 
-        char filename[256];
-        int landmark;
-        sscanf(buf, "%s %d", filename, &landmark);
-        db_files.push_back(std::string(filename));
-        db_landmarks.push_back(landmark);
+        db_files.push_back(std::string(buf));
     }
 
     fclose(f);
@@ -245,23 +247,20 @@ int main(int argc, char **argv)
     int num_db_images = db_files.size();
     int num_query_images = query_files.size();
 
+    printf("[VocabMatch] Read %d database images\n", num_db_images);
+
     /* Now score each query keyfile */
-    printf("[VocabMatch] Scoring query images...\n");
+    printf("[VocabMatch] Scoring %d query images...\n", num_query_images);
     fflush(stdout);
 
+#if 0
     FILE *f_html = fopen(output_html, "w");
     PrintHTMLHeader(f_html, num_nbrs);
+#endif
 
     float *scores = new float[num_db_images];
     double *scores_d = new double[num_db_images];
     int *perm = new int[num_db_images];
-
-    int max_ld = 0;
-    for (int i = 0; i < num_db_images; i++) {
-        if (db_landmarks[i] > max_ld){
-            max_ld = db_landmarks[i];
-        }
-    }
 
     FILE *f_match = fopen(matches_out, "w");
     if (f_match == NULL) {
@@ -283,14 +282,14 @@ int main(int argc, char **argv)
         keys = ReadKeys(query_files[i].c_str(), dim, num_keys);
 
         clock_t start_score = clock();
-        tree.ScoreQueryKeys(num_keys, true, keys, scores);
+        double mag = tree.ScoreQueryKeys(num_keys, normalize, keys, scores);
         clock_t end_score = end = clock();
 
         printf("[VocabMatch] Scored image %s in %0.3fs "
-               "( %0.3fs total, num_keys = %d )\n", 
+               "( %0.3fs total, num_keys = %d, mag = %0.3f )\n", 
                query_files[i].c_str(), 
                (double) (end_score - start_score) / CLOCKS_PER_SEC,
-               (double) (end - start) / CLOCKS_PER_SEC, num_keys);
+               (double) (end - start) / CLOCKS_PER_SEC, num_keys, mag);
 
         /* Find the top scores */
         for (int j = 0; j < num_db_images; j++) {
@@ -300,43 +299,32 @@ int main(int argc, char **argv)
         qsort_descending();
         qsort_perm(num_db_images, scores_d, perm);        
 
-        int max_landmark = 0, max_votes = 0;
         int top = MIN(num_nbrs, num_db_images);
 
-        int *votes = new int[max_ld+1];
-
-        for (int j = 0; j < max_ld+1; j++){
-            votes[j] = 0;
-        }
-
         for (int j = 0; j < top; j++) {
-            votes[db_landmarks[perm[j]]]++;
+            // if (perm[j] == index_i)
+            //     continue;
+            fprintf(f_match, "%d %d %0.4f\n", i, perm[j], scores_d[j]);
+            //fprintf(f_match, "%d %d %0.4f\n", i, perm[j], mag - scores_d[j]);
         }
         
-        max_votes = 0;
-        max_landmark = -1;
-        for (int j = 0; j < max_ld+1; j++) {
-            if (votes[j] > max_votes) {
-                max_votes = votes[j];
-                max_landmark = j;
-            }
-        }
-
-        /* Print the matching information to a file */
-        fprintf(f_match, "%d %d %d\n", i, max_landmark, max_votes);
         fflush(f_match);
         fflush(stdout);
 
+#if 0
         PrintHTMLRow(f_html, query_files[i], scores_d, 
                      perm, num_nbrs, db_files);
+#endif
 
         delete [] keys;
     }
 
     fclose(f_match);
 
+#if 0
     PrintHTMLFooter(f_html);
     fclose(f_html);
+#endif
 
     delete [] scores;
     delete [] scores_d;

@@ -122,35 +122,37 @@ int VocabTreeInteriorNode::BuildRecurse(int n, int dim, int depth,
         }
     }
 
-    /* Reorder the pointers to the vectors */
-    int idx = 0;
-    for (int i = 0; i < bf; i++) {
-        for (int j = 0; j < n; j++) {
-            if ((int) clustering[j] == i) {
-                unsigned char *v_tmp = v[idx];
-                v[idx] = v[j];
-                v[j] = v_tmp;
+    if (depth_curr < depth) {
+        /* Reorder the pointers to the vectors */
+        int idx = 0;
+        for (int i = 0; i < bf; i++) {
+            for (int j = 0; j < n; j++) {
+                if ((int) clustering[j] == i) {
+                    unsigned char *v_tmp = v[idx];
+                    v[idx] = v[j];
+                    v[j] = v_tmp;
 
-                unsigned int tmp = clustering[idx];
-                clustering[idx] = clustering[j];
-                clustering[j] = tmp;
+                    unsigned int tmp = clustering[idx];
+                    clustering[idx] = clustering[j];
+                    clustering[j] = tmp;
 
-                idx++;
+                    idx++;
+                }
             }
         }
-    }
+    
+        int off = 0;
+        for (int i = 0; i < bf; i++) {
+            if (m_children[i] != NULL) {
+                m_children[i]->BuildRecurse(counts[i], dim, depth, depth_curr + 1,
+                                            bf, restarts, v + off, means, 
+                                            clustering);
+            }
 
-    int off = 0;
-    for (int i = 0; i < bf; i++) {
-        if (m_children[i] != NULL) {
-            m_children[i]->BuildRecurse(counts[i], dim, depth, depth_curr + 1,
-                                        bf, restarts, v + off, means, 
-                                        clustering);
+            off += counts[i];
         }
-
-        off += counts[i];
     }
-
+    
     delete [] counts;
 
     return 0;

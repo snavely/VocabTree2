@@ -433,8 +433,11 @@ public:
      * Output:
      *   scores    : at exit, array of score for each database image
      *               (similarity to the query vector)
+     *
+     *   Returns the magnitude of the query vector
      */
-    int ScoreQueryKeys(int n, bool normalize, unsigned char *v, float *scores);
+    double ScoreQueryKeys(int n, bool normalize, unsigned char *v, 
+                          float *scores);
 
     /* Empty out the database */
     int ClearDatabase();

@@ -41,6 +41,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <sys/time.h>
+
 #include "kmeans_kd.h"
 
 /* Choose k numbers at random from 0 to n-1 */
@@ -276,10 +278,10 @@ double kmeans(int n, int dim, int k, int restarts, unsigned char **v,
     double min_error = DBL_MAX;
 
     double *means_curr, *means_new, *work;
-    int *starts, *counts;
+    int *starts;
     unsigned int *clustering_curr;
 
-    double changed_pct_threshold = 0.005;
+    double changed_pct_threshold = 0.05; // 0.005;
 
     if (n <= k) {
         printf("[kmeans] Error: n <= k\n");
@@ -330,6 +332,9 @@ double kmeans(int n, int dim, int k, int restarts, unsigned char **v,
         }
         
         /* Compute new assignments */
+        timeval start, stop;
+        gettimeofday(&start, NULL);
+
         int changed = 0;
         changed = compute_clustering_kd_tree(n, dim, k, v, means_curr,
                                              clustering_curr, error);
@@ -337,8 +342,17 @@ double kmeans(int n, int dim, int k, int restarts, unsigned char **v,
         double changed_pct = (double) changed / n;
 
         do {
+            gettimeofday(&stop, NULL);
+
+            long seconds  = stop.tv_sec  - start.tv_sec;
+            long useconds = stop.tv_usec - start.tv_usec;
+            double etime = seconds + useconds * 0.000001;    
+
             printf("Round %d: changed: %d\n", i, changed);
+            printf("Round took %0.3lfs\n", etime);            
             fflush(stdout);
+
+            gettimeofday(&start, NULL);
 
             /* Recompute means */
             max_change = compute_means(n, dim, k, v, 
