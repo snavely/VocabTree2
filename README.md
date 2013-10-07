@@ -23,7 +23,7 @@ sift binary.  There are three tools provided:
 
  - VocabLearn: build a vocabulary tree from a set of key files using k-means
  - VocabBuildDB: build an image database from a set of key files and a tree
- - VocabMatch: match and image to a database and retrieve a set of top matches
+ - VocabMatch: match an image to a database and retrieve a set of top matches
 
 Example usages:
 
