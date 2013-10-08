@@ -27,18 +27,17 @@ sift binary.  There are three tools provided:
 
 Example usages:
 
-  # VocabLearn
-  # Usage: VocabLearn <list.in> <depth> <branching_factor> <restarts> <tree.out>
-  #  - <list.in> contains just a list of key files (in Lowe's format).
-  #  - <depth> -- depth of tree. 0 indicates a flat tree
-  #  - <branching_factor> -- number of children each non-leaf node
-  #  - <restarts> -- number of trials in each run of k-means.
-  #  - <tree.out> -- name of output tree
-  #
-  # Example:
-  # Learn a flat vocabulary tree with 500K visual words using the SIFT keys in list.txt
-  # Store the results in tree.500K.out
-  > VocabLearn list.txt 0 500000 1 tree.500K.out
+  # VocabLearn  
+  # Usage: VocabLearn list.in depth branching_factor restarts tree.out  
+  #  - list.in contains just a list of key files (in Lowe's format).  
+  #  - depth -- depth of tree. 0 indicates a flat tree  
+  #  - branching_factor -- number of children each non-leaf node  
+  #  - restarts -- number of trials in each run of k-means.  
+  #  - tree.out -- name of output tree  
+  #  
+  # Example:  
+  # Learn a flat vocabulary tree with 500K visual words using the SIFT keys in list.txt  
+  # Store the results in tree.500K.out  
+  > VocabLearn list.txt 0 500000 1 tree.500K.out  
   
-
 
