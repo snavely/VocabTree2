@@ -66,6 +66,10 @@ int main(int argc, char **argv)
            "and restarts: %d\n", depth, bf, restarts);
 
     FILE *f = fopen(list_in, "r");
+    if (!f){
+      std::cerr << "Could not open file: " << list_in << std::endl;
+      return 1;
+    }
     
     std::vector<std::string> key_files;
     char buf[256];
@@ -78,7 +82,7 @@ int main(int argc, char **argv)
     }
 
     fclose(f);
-
+    
     int num_files = (int) key_files.size();
     unsigned long total_keys = 0;
     for (int i = 0; i < num_files; i++) {
@@ -87,6 +91,14 @@ int main(int argc, char **argv)
     }
 
     printf("Total number of keys: %lu\n", total_keys);
+
+    // Bugfix: reduce the branching factor if need be if there are not
+    // enough keys, to avoid problems later.
+    if (bf >= (int)total_keys){
+      bf = total_keys - 1;
+      printf("Reducing the branching factor to: %d\n", bf);
+    }
+    
     fflush(stdout);
 
     int dim = 128;
