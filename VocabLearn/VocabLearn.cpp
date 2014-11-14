@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 
     FILE *f = fopen(list_in, "r");
     if (!f){
-      std::cerr << "Could not open file: " << list_in << std::endl;
+      printf("Could not open file: %s\n", list_in);
       return 1;
     }
     
