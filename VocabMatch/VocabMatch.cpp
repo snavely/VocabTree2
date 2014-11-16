@@ -214,6 +214,10 @@ int main(int argc, char **argv)
     
     /* Read the database keyfiles */
     FILE *f = fopen(db_in, "r");
+    if (f == NULL) {
+      printf("Could not open file: %s\n", db_in);
+      return 1;
+    }
     
     std::vector<std::string> db_files;
     char buf[256];
@@ -229,6 +233,10 @@ int main(int argc, char **argv)
 
     /* Read the query keyfiles */
     f = fopen(query_in, "r");
+    if (f == NULL) {
+      printf("Could not open file: %s\n", query_in);
+      return 1;
+    }
     
     std::vector<std::string> query_files;
     while (fgets(buf, 256, f)) {
