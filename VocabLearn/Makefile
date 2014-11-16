@@ -19,7 +19,7 @@ LIBS=-lvocab -lANN -lANN_char -limage -lz
 
 CPPFLAGS=$(INCLUDE_PATH) $(LIB_PATH) $(OTHERFLAGS) $(OPTFLAGS)
 
-BIN=VocabLearn_omp
+BIN=VocabLearn
 
 all: $(BIN)
 

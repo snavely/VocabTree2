@@ -39,7 +39,7 @@ Example usages:
   # Example:   
   # Learn a flat vocabulary tree with 500K visual words using the SIFT keys in list.txt   
   # Store the results in tree.500K.out   
-  > ./VocabLearn/VocabLearn_omp list.txt 0 500000 1 tree.500K.out   
+  > ./VocabLearn/VocabLearn list.txt 0 500000 1 tree.500K.out   
   
   # VocabBuildDB  
   # Usage: VocabBuildDB list.in tree.in db.out [use_tfidf:1] [normalize:1] [start_id:0] [distance_type:1]  

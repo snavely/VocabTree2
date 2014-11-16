@@ -66,7 +66,7 @@ int main(int argc, char **argv)
            "and restarts: %d\n", depth, bf, restarts);
 
     FILE *f = fopen(list_in, "r");
-    if (!f){
+    if (f == NULL) {
       printf("Could not open file: %s\n", list_in);
       return 1;
     }
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
 
     printf("Total number of keys: %lu\n", total_keys);
 
-    // Bugfix: reduce the branching factor if need be if there are not
+    // Reduce the branching factor if need be if there are not
     // enough keys, to avoid problems later.
     if (bf >= (int)total_keys){
       bf = total_keys - 1;

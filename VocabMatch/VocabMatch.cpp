@@ -214,7 +214,7 @@ int main(int argc, char **argv)
     
     /* Read the database keyfiles */
     FILE *f = fopen(db_in, "r");
-    if (!f){
+    if (f == NULL) {
       printf("Could not open file: %s\n", db_in);
       return 1;
     }
@@ -233,7 +233,7 @@ int main(int argc, char **argv)
 
     /* Read the query keyfiles */
     f = fopen(query_in, "r");
-    if (!f){
+    if (f == NULL) {
       printf("Could not open file: %s\n", query_in);
       return 1;
     }
