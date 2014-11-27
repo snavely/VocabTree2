@@ -251,10 +251,9 @@ int VocabTree::Read(const char *filename)
     fread(&interior, sizeof(char), 1, f);
 
     m_root->Read(f, m_branch_factor, m_dim);
-    unsigned long next_id = m_root->ComputeIDs(m_branch_factor, 0);
-    unsigned long n = m_root->CountNodes(m_branch_factor);
-
-    printf("  Next id: %lu == %lu + 1\n", next_id, n);
+    /* unsigned long next_id = */ m_root->ComputeIDs(m_branch_factor, 0);
+    /* unsigned long n = */ m_root->CountNodes(m_branch_factor);
+    /* printf("  Next id: %lu == %lu + 1\n", next_id, n); */
 
     m_num_nodes = CountNodes();
 
