@@ -99,8 +99,8 @@ unsigned char *ReadAndFilterKeys(const char *keyfile, int dim,
 int main(int argc, char **argv) 
 {
     if (argc < 4 || argc > 8) {
-        printf("Usage: %s <list.in> <tree.in> <tree.out> [use_tfidf:1] "
-               "[normalize:1] [start_id:0] [distance_type:1]\n", 
+        printf("Usage: %s <list.in> <tree.in> <db.out> [use_tfidf:1] "
+               "[normalize:1] [start_id:0] [distance_type:1]\n",
                argv[0]);
 
         return 1;
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
     
     char *list_in = argv[1];
     char *tree_in = argv[2];
-    char *tree_out = argv[3];
+    char *db_out = argv[3];
     DistanceType distance_type = DistanceMin;
     int start_id = 0;
 
@@ -202,8 +202,8 @@ int main(int argc, char **argv)
     if (normalize) 
         tree.NormalizeDatabase(start_id, num_db_images);
 
-    printf("[VocabBuildDB] Writing tree...\n");
-    tree.Write(tree_out);
+    printf("[VocabBuildDB] Writing database ...\n");
+    tree.Write(db_out);
 
     // char filename[256];
     // sprintf(filename, "vectors_%03d.txt", start_id);
