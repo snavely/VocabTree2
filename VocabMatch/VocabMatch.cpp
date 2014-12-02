@@ -155,7 +155,7 @@ int main(int argc, char **argv)
     const int dim = 128;
 
     if (argc != 6 && argc != 7 && argc != 8) {
-        printf("Usage: %s <tree.in> <list.in> <query.in> <num_nbrs> "
+        printf("Usage: %s <db.in> <list.in> <query.in> <num_nbrs> "
                "<matches.out> [distance_type:1] [normalize:1]\n", argv[0]);
         return 1;
     }
