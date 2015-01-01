@@ -367,7 +367,10 @@ public:
 
 class VocabTree {
 public:
-    VocabTree() : m_database_images(0), m_distance_type(DistanceMin) { }
+    VocabTree() : m_database_images(0), m_branch_factor(0),
+                  m_depth(0), m_dim(0), m_num_nodes(0),
+                  m_distance_type(DistanceMin),
+                  m_root(NULL){ }
 
     /* I/O routines */
     int Read(const char *filename);

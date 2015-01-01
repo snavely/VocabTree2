@@ -155,13 +155,13 @@ int main(int argc, char **argv)
     const int dim = 128;
 
     if (argc != 6 && argc != 7 && argc != 8) {
-        printf("Usage: %s <tree.in> <db.in> <query.in> <num_nbrs> "
+        printf("Usage: %s <db.in> <list.in> <query.in> <num_nbrs> "
                "<matches.out> [distance_type:1] [normalize:1]\n", argv[0]);
         return 1;
     }
-    
-    char *tree_in = argv[1];
-    char *db_in = argv[2];
+
+    char *db_in = argv[1];
+    char *list_in = argv[2];
     char *query_in = argv[3];
     int num_nbrs = atoi(argv[4]);
     char *matches_out = argv[5];
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
     if (argc >= 8)
         normalize = (atoi(argv[7]) != 0);
 
-    printf("[VocabMatch] Using tree %s\n", tree_in);
+    printf("[VocabMatch] Using database %s\n", db_in);
 
     switch (distance_type) {
     case DistanceDot:
@@ -194,15 +194,15 @@ int main(int argc, char **argv)
     }
 
     /* Read the tree */
-    printf("[VocabMatch] Reading tree...\n");
+    printf("[VocabMatch] Reading database...\n");
     fflush(stdout);
 
     clock_t start = clock();
     VocabTree tree;
-    tree.Read(tree_in);
+    tree.Read(db_in);
 
     clock_t end = clock();
-    printf("[VocabMatch] Read tree in %0.3fs\n", 
+    printf("[VocabMatch] Read database in %0.3fs\n",
            (double) (end - start) / CLOCKS_PER_SEC);
 
 #if 1
@@ -213,9 +213,9 @@ int main(int argc, char **argv)
     tree.SetInteriorNodeWeight(0, 0.0);
     
     /* Read the database keyfiles */
-    FILE *f = fopen(db_in, "r");
+    FILE *f = fopen(list_in, "r");
     if (f == NULL) {
-      printf("Could not open file: %s\n", db_in);
+      printf("Could not open file: %s\n", list_in);
       return 1;
     }
     
