@@ -239,9 +239,7 @@ int ReadKeys(FILE *fp, short int **keys, keypt_t **info)
 	// short int *d = new short int[128];
 	float x, y, scale, ori;
 
-	//int cake = fscanf(fp, "%f %f\n", &y, &x);	
-	int cake = fscanf(fp, "%f %f %f %f\n", &y, &x, &scale, &ori);
-	if (cake != 4) {
+	if (fscanf(fp, "%f %f %f %f\n", &y, &x, &scale, &ori) != 4) {
 	    printf("Invalid keypoint file format.");
 	    return 0;
 	}
