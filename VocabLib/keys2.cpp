@@ -251,23 +251,27 @@ int ReadKeys(FILE *fp, short int **keys, keypt_t **info)
             (*info)[i].orient = ori;
         }
         
-	char buf[1024];
+	char buffer[1024];
+	char *buf = buffer;
+	fgets(buf, 1024, fp);
+	int offset;
 	for (int line = 0; line < 7; line++) {
-	    fgets(buf, 1024, fp);
-
+	  
 	    if (line < 6) {
 		sscanf(buf, 
 		       "%hu %hu %hu %hu %hu %hu %hu %hu %hu %hu "
-		       "%hu %hu %hu %hu %hu %hu %hu %hu %hu %hu", 
+		       "%hu %hu %hu %hu %hu %hu %hu %hu %hu %hu %n", 
 		       p+0, p+1, p+2, p+3, p+4, p+5, p+6, p+7, p+8, p+9, 
 		       p+10, p+11, p+12, p+13, p+14, 
-		       p+15, p+16, p+17, p+18, p+19);
-
+		       p+15, p+16, p+17, p+18, p+19, &offset);
+		
 		p += 20;
+		buf += offset;
 	    } else {
 		sscanf(buf, 
 		       "%hu %hu %hu %hu %hu %hu %hu %hu",
 		       p+0, p+1, p+2, p+3, p+4, p+5, p+6, p+7);
+		
 		p += 8;
 	    }
 	}
@@ -349,7 +353,7 @@ int ReadKeysGzip(gzFile fp, short int **keys, keypt_t **info)
 		       "%hu %hu %hu %hu %hu %hu %hu %hu %hu %hu", 
 		       p+0, p+1, p+2, p+3, p+4, p+5, p+6, p+7, p+8, p+9, 
 		       p+10, p+11, p+12, p+13, p+14, 
-		       p+15, p+16, p+17, p+18, p+19);
+		       p+15, p+16, p+17, p+18, p+19 );
 
 		p += 20;
 	    } else {
